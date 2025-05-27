@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mangamecca', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://himanshu7554:Himanshu1903@mangamecca.htsrdw6.mongodb.net/', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
