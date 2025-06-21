@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-// Get API base URL from environment or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Get API base URL from environment or default to deployed backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mangamecca.onrender.com';
 
 const AccountSettings = ({ user }) => {
     const [passwordData, setPasswordData] = useState({

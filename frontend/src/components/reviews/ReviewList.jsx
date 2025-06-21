@@ -5,8 +5,8 @@ import ReviewStats from './ReviewStats';
 import ReviewForm from './ReviewForm';
 import { useAuth } from '../../context/AuthContext';
 
-// Get API base URL from environment or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Get API base URL from environment or default to deployed backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mangamecca.onrender.com';
 
 const ReviewList = ({ productId }) => {
     const [reviews, setReviews] = useState([]);

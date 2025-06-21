@@ -6,8 +6,8 @@ import OrderHistory from './profile/OrderHistory';
 import SavedItems from './profile/SavedItems';
 import AccountSettings from './profile/AccountSettings';
 
-// Get API base URL from environment or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Get API base URL from environment or default to deployed backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mangamecca.onrender.com';
 
 const UserProfile = () => {
     const [activeTab, setActiveTab] = useState('profile');

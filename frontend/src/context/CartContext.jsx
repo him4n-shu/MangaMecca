@@ -5,8 +5,8 @@ const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
-// Get API base URL from environment or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Get API base URL from environment or default to deployed backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mangamecca.onrender.com';
 
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
