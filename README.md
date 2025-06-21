@@ -249,7 +249,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Himanshu**
 - GitHub: https://github.com/him4n-shu)
 - LinkedIn: https://www.linkedin.com/in/him4nshu-kumar)
 - Portfolio:(https://itshim4nshu.vercel.app)
