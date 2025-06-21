@@ -5,6 +5,9 @@ const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
   const [cart, setCart] = useState([]);
@@ -26,8 +29,7 @@ export const CartProvider = ({ children }) => {
             throw new Error('No authentication token found');
           }
 
-          console.log('Loading cart for user:', user._id);
-          const response = await fetch('/api/cart', {
+          const response = await fetch(`${API_BASE_URL}/api/cart`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -38,7 +40,6 @@ export const CartProvider = ({ children }) => {
           }
 
           const data = await response.json();
-          console.log('Cart data loaded:', data);
           
           setCart(data.items || []);
           setSavedItems(data.savedItems || []);
@@ -76,8 +77,7 @@ export const CartProvider = ({ children }) => {
             throw new Error('No authentication token found');
           }
 
-          console.log('Saving cart for user:', user._id);
-          const response = await fetch('/api/cart', {
+          const response = await fetch(`${API_BASE_URL}/api/cart`, {
             method: 'PUT',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -91,7 +91,6 @@ export const CartProvider = ({ children }) => {
           }
 
           const data = await response.json();
-          console.log('Cart saved successfully:', data);
         } else {
           // For non-logged in users, use localStorage
           localStorage.setItem('cart', JSON.stringify(cart));
@@ -176,8 +175,7 @@ export const CartProvider = ({ children }) => {
           throw new Error('No authentication token found');
         }
 
-        console.log('Clearing cart for user:', user._id);
-        const response = await fetch('/api/cart', {
+        const response = await fetch(`${API_BASE_URL}/api/cart`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -187,8 +185,6 @@ export const CartProvider = ({ children }) => {
         if (!response.ok) {
           throw new Error(`Failed to clear cart: ${response.statusText}`);
         }
-
-        console.log('Cart cleared successfully');
       }
       setCart([]);
       setSavedItems([]);

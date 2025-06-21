@@ -11,7 +11,6 @@ const AccountSettings = ({ user }) => {
     });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const { logout } = useAuth();
     const navigate = useNavigate();
 
@@ -74,35 +73,6 @@ const AccountSettings = ({ user }) => {
         }
     };
 
-    const handleDeleteAccount = async () => {
-        setLoading(true);
-        
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('/api/auth/delete-account', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                logout();
-                navigate('/');
-            } else {
-                const data = await res.json();
-                setMessage({ text: data.message || 'Failed to delete account', type: 'error' });
-                setShowDeleteConfirm(false);
-            }
-        } catch (err) {
-            setMessage({ text: 'An error occurred. Please try again.', type: 'error' });
-            console.error('Error deleting account:', err);
-            setShowDeleteConfirm(false);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     if (!user) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -156,65 +126,44 @@ const AccountSettings = ({ user }) => {
                                 value={passwordData.confirmPassword}
                                 onChange={handleChange}
                                 required
-                                minLength={6}
                                 className="w-full bg-gray-800 text-white border border-gray-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
                         </div>
-                    </div>
-                    <div className="mt-6">
-                        <motion.button
-                            type="submit"
-                            className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            disabled={loading}
-                        >
-                            {loading ? 'Updating...' : 'Update Password'}
-                        </motion.button>
+                        <div>
+                            <motion.button
+                                type="submit"
+                                className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors duration-200"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                disabled={loading}
+                            >
+                                {loading ? 'Updating...' : 'Update Password'}
+                            </motion.button>
+                        </div>
                     </div>
                 </form>
             </div>
 
-            <div className="border-t border-gray-700 pt-8">
-                <h3 className="text-xl font-semibold text-white mb-4">Danger Zone</h3>
-                <p className="text-gray-400 mb-4">
-                    Once you delete your account, there is no going back. Please be certain.
-                </p>
-
-                {!showDeleteConfirm ? (
+            <div className="mb-8">
+                <h3 className="text-xl font-semibold text-white mb-4">Account Actions</h3>
+                <div className="flex flex-wrap gap-4">
                     <motion.button
-                        onClick={() => setShowDeleteConfirm(true)}
+                        onClick={() => navigate('/profile/delete-account')}
                         className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
                         Delete Account
                     </motion.button>
-                ) : (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-md p-4">
-                        <p className="text-white mb-4">Are you sure you want to delete your account? This action cannot be undone.</p>
-                        <div className="flex space-x-4">
-                            <motion.button
-                                onClick={() => setShowDeleteConfirm(false)}
-                                className="px-6 py-2 border border-gray-600 text-gray-300 rounded-md hover:bg-gray-800 transition-colors duration-200"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                disabled={loading}
-                            >
-                                Cancel
-                            </motion.button>
-                            <motion.button
-                                onClick={handleDeleteAccount}
-                                className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                disabled={loading}
-                            >
-                                {loading ? 'Deleting...' : 'Yes, Delete My Account'}
-                            </motion.button>
-                        </div>
-                    </div>
-                )}
+                    <motion.button
+                        onClick={logout}
+                        className="px-6 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition-colors duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        Logout
+                    </motion.button>
+                </div>
             </div>
         </div>
     );

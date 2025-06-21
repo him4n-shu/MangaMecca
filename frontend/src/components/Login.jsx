@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
-    const [error, setError] = useState('');
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+    const [error, setError] = useState(null);
     const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({
@@ -21,152 +18,73 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setIsLoading(true);
-        
+        setError(null);
+
         try {
             const result = await login(formData.email, formData.password);
             if (result.success) {
-                navigate('/'); // Redirect to home page after successful login
+                navigate('/');
             } else {
-                setError(result.message || 'Invalid credentials. Please try again.');
+                setError(result.message || 'Login failed. Please check your credentials.');
             }
         } catch (err) {
-            setError(err.message || 'Failed to login. Please try again.');
+            setError('An error occurred during login. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden flex items-center justify-center py-4">
-            {/* Enhanced Animated SVG Background */}
-            <div className="absolute inset-0 z-0">
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+        <div className="flex items-center justify-center min-h-screen relative overflow-hidden">
+            {/* Background SVG animation */}
+            <div className="absolute inset-0 overflow-hidden">
+                <svg className="w-full h-full" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
                     <defs>
-                        <radialGradient id="animeGrad1" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stopColor="#ff6b6b" stopOpacity="0.8" />
-                            <stop offset="50%" stopColor="#4ecdc4" stopOpacity="0.6" />
-                            <stop offset="100%" stopColor="#45b7d1" stopOpacity="0.4" />
-                        </radialGradient>
-                        <linearGradient id="animeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#ffd93d" stopOpacity="0.7" />
-                            <stop offset="50%" stopColor="#ff6b6b" stopOpacity="0.5" />
-                            <stop offset="100%" stopColor="#6c5ce7" stopOpacity="0.3" />
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#9333EA" stopOpacity="0.3" />
                         </linearGradient>
-                        <linearGradient id="animeGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#a29bfe" stopOpacity="0.6" />
-                            <stop offset="100%" stopColor="#fd79a8" stopOpacity="0.4" />
+                        <linearGradient id="grad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#EC4899" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.3" />
                         </linearGradient>
-                        <filter id="animeGlow">
-                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                            <feMerge> 
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
+                        <linearGradient id="animeGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.5">
+                                <animate attributeName="stopColor" values="#4F46E5; #9333EA; #4F46E5" dur="8s" repeatCount="indefinite" />
+                            </stop>
+                            <stop offset="100%" stopColor="#9333EA" stopOpacity="0.5">
+                                <animate attributeName="stopColor" values="#9333EA; #4F46E5; #9333EA" dur="8s" repeatCount="indefinite" />
+                            </stop>
+                        </linearGradient>
+                        <linearGradient id="animeGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#EC4899" stopOpacity="0.5">
+                                <animate attributeName="stopColor" values="#EC4899; #8B5CF6; #EC4899" dur="8s" repeatCount="indefinite" />
+                            </stop>
+                            <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.5">
+                                <animate attributeName="stopColor" values="#8B5CF6; #EC4899; #8B5CF6" dur="8s" repeatCount="indefinite" />
+                            </stop>
+                        </linearGradient>
+                        <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.5" />
+                            <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.5" />
+                        </linearGradient>
                     </defs>
                     
-                    {/* Manga panel frames */}
-                    <rect x="50" y="100" width="200" height="150" rx="10" fill="none" stroke="url(#animeGrad1)" strokeWidth="3" opacity="0.6">
-                        <animateTransform
-                            attributeName="transform"
-                            type="rotate"
-                            values="0 150 175; 5 150 175; 0 150 175"
-                            dur="8s"
-                            repeatCount="indefinite"
-                        />
-                    </rect>
+                    {/* Background shapes */}
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#grad1)" />
                     
-                    <rect x="700" y="200" width="180" height="120" rx="8" fill="none" stroke="url(#animeGrad2)" strokeWidth="2" opacity="0.5">
-                        <animateTransform
-                            attributeName="transform"
-                            type="translate"
-                            values="0,0; -20,30; 0,0"
-                            dur="12s"
-                            repeatCount="indefinite"
-                        />
-                    </rect>
-                    
-                    {/* Speech bubbles */}
-                    <ellipse cx="300" cy="400" rx="80" ry="60" fill="url(#animeGrad1)" filter="url(#animeGlow)" opacity="0.7">
-                        <animateTransform
-                            attributeName="transform"
-                            type="translate"
-                            values="0,0; 40,20; -10,40; 0,0"
-                            dur="10s"
-                            repeatCount="indefinite"
-                        />
-                        <animate attributeName="rx" values="80; 90; 70; 80" dur="6s" repeatCount="indefinite" />
-                    </ellipse>
-                    
-                    <ellipse cx="750" cy="600" rx="60" ry="45" fill="url(#animeGrad3)" filter="url(#animeGlow)" opacity="0.6">
-                        <animateTransform
-                            attributeName="transform"
-                            type="translate"
-                            values="0,0; -30,25; 20,-15; 0,0"
-                            dur="14s"
-                            repeatCount="indefinite"
-                        />
-                    </ellipse>
-                    
-                    {/* Action lines (speed lines) */}
+                    {/* Animated shapes */}
                     <g opacity="0.4">
-                        <line x1="100" y1="500" x2="300" y2="480" stroke="url(#animeGrad2)" strokeWidth="2">
-                            <animate attributeName="opacity" values="0.4; 0.8; 0.4" dur="3s" repeatCount="indefinite" />
-                        </line>
-                        <line x1="120" y1="520" x2="320" y2="500" stroke="url(#animeGrad2)" strokeWidth="1.5">
-                            <animate attributeName="opacity" values="0.3; 0.7; 0.3" dur="3.5s" repeatCount="indefinite" />
-                        </line>
-                        <line x1="140" y1="540" x2="340" y2="520" stroke="url(#animeGrad2)" strokeWidth="1">
-                            <animate attributeName="opacity" values="0.2; 0.6; 0.2" dur="4s" repeatCount="indefinite" />
-                        </line>
-                    </g>
-                    
-                    {/* Japanese characters/symbols */}
-                    <text x="200" y="300" fontSize="40" fill="url(#animeGrad1)" opacity="0.3" fontFamily="serif">
-                        漫画
-                        <animateTransform
-                            attributeName="transform"
-                            type="rotate"
-                            values="0 200 300; 10 200 300; 0 200 300"
-                            dur="15s"
-                            repeatCount="indefinite"
-                        />
-                    </text>
-                    
-                    <text x="600" y="500" fontSize="30" fill="url(#animeGrad3)" opacity="0.4" fontFamily="serif">
-                        アニメ
-                        <animateTransform
-                            attributeName="transform"
-                            type="translate"
-                            values="0,0; 15,10; 0,0"
-                            dur="8s"
-                            repeatCount="indefinite"
-                        />
-                    </text>
-                    
-                    {/* Floating stars (anime style) */}
-                    <g opacity="0.6">
-                        <polygon points="150,700 155,715 170,715 158,725 163,740 150,730 137,740 142,725 130,715 145,715" fill="url(#animeGrad2)">
-                            <animateTransform
-                                attributeName="transform"
-                                type="rotate"
-                                values="0 150 720; 360 150 720"
-                                dur="20s"
-                                repeatCount="indefinite"
-                            />
-                            <animate attributeName="opacity" values="0.6; 1; 0.6" dur="4s" repeatCount="indefinite" />
-                        </polygon>
-                        
-                        <polygon points="800,150 805,165 820,165 808,175 813,190 800,180 787,190 792,175 780,165 795,165" fill="url(#animeGrad1)">
-                            <animateTransform
-                                attributeName="transform"
-                                type="rotate"
-                                values="0 800 170; 360 800 170"
-                                dur="25s"
-                                repeatCount="indefinite"
-                            />
+                        <circle cx="200" cy="200" r="100" fill="url(#animeGrad1)">
+                            <animate attributeName="r" values="100; 120; 100" dur="8s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.4; 0.6; 0.4" dur="8s" repeatCount="indefinite" />
+                        </circle>
+                        <circle cx="800" cy="300" r="150" fill="url(#animeGrad2)">
+                            <animate attributeName="r" values="150; 170; 150" dur="10s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.3; 0.5; 0.3" dur="10s" repeatCount="indefinite" />
+                        </circle>
+                        <polygon points="500,100 600,300 400,300" fill="url(#grad2)">
                             <animate attributeName="opacity" values="0.5; 0.9; 0.5" dur="5s" repeatCount="indefinite" />
                         </polygon>
                     </g>
@@ -315,7 +233,17 @@ const Login = () => {
                             </div>
                         </button>
                     </form>
-                    
+
+                    {/* Password Reset Link */}
+                    <div className="text-center mt-4">
+                        <Link 
+                            to="/reset-password" 
+                            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                            Forgot your password?
+                        </Link>
+                    </div>
+
                     <div className="text-center space-y-2">
                         <div className="flex items-center justify-center space-x-2">
                             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent flex-1"></div>

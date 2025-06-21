@@ -142,5 +142,106 @@ body::after {
   filter: blur(0);
 }
 
+/* Responsive typography */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  h3 {
+    font-size: 1.25rem !important;
+  }
+  
+  .text-sm-mobile {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Container padding for mobile */
+.container-padding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-padding {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-padding {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Responsive spacing utilities */
+.responsive-gap {
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-gap {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-gap {
+    gap: 2rem;
+  }
+}
+
+/* Touch-friendly tap targets */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Fix for iOS 100vh issue */
+.safe-height {
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
+/* Responsive grid layouts */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+  }
+}
+
+/* Fix for sticky elements on iOS */
+.sticky-fix {
+  position: sticky;
+  position: -webkit-sticky;
+}
+
+/* Improved focus styles for accessibility */
+.focus-visible:focus-visible {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
 
 

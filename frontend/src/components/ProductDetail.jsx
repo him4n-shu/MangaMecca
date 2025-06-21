@@ -3,8 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
+import { useRecentlyViewed } from '../context/RecentlyViewedContext';
 import ReviewList from './reviews/ReviewList';
 import OptimizedImage from './common/OptimizedImage';
+import Breadcrumb from './common/Breadcrumb';
+import RecentlyViewed from './RecentlyViewed';
+import ProductRecommendations from './ProductRecommendations';
 
 // Import all product data
 import { mangaItems } from './MangaSection';
@@ -21,12 +26,13 @@ const ProductDetail = () => {
     const [buttonText, setButtonText] = useState('Add to Cart');
     const { addToCart, cart } = useCart();
     const { user } = useAuth();
+    const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+    const { addToRecentlyViewed } = useRecentlyViewed();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('description');
 
     useEffect(() => {
         setLoading(true);
-        console.log("Looking for product:", { category, productId });
 
         // Get all products combined
         const allProducts = {
@@ -41,23 +47,27 @@ const ProductDetail = () => {
         
         // Find the product in the appropriate category
         const categoryProducts = allProducts[category] || [];
-        console.log("Category products:", categoryProducts);
 
         const foundProduct = categoryProducts.find(p => p.id === productIdNumber);
-        console.log("Found product:", foundProduct);
 
         if (foundProduct) {
             // Add more detailed information to product
-            setProduct({
+            const enhancedProduct = {
                 ...foundProduct,
                 description: getProductDescription(foundProduct, category),
                 specifications: getProductSpecifications(foundProduct, category),
-                relatedProducts: getRelatedProducts(foundProduct, category, categoryProducts)
-            });
+                relatedProducts: getRelatedProducts(foundProduct, category, categoryProducts),
+                category: category // Ensure category is included
+            };
+            
+            setProduct(enhancedProduct);
+            
+            // Add to recently viewed
+            addToRecentlyViewed(enhancedProduct);
         }
         
         setLoading(false);
-    }, [category, productId]);
+    }, [category, productId, addToRecentlyViewed]);
 
     // Function to generate product descriptions
     const getProductDescription = (product, category) => {
@@ -198,6 +208,21 @@ const ProductDetail = () => {
         }
     };
 
+    const handleToggleWishlist = () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        if (product) {
+            if (isInWishlist(product.id)) {
+                removeFromWishlist(product.id);
+            } else {
+                addToWishlist(product);
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -224,179 +249,231 @@ const ProductDetail = () => {
     }
 
     return (
-        <div className="max-w-[1200px] mx-auto px-4 py-12">
+        <div className="container-padding max-w-[1200px] mx-auto py-6 md:py-12">
             {/* Breadcrumb */}
-            <div className="mb-8">
-                <nav className="flex" aria-label="Breadcrumb">
-                    <ol className="inline-flex items-center space-x-1 md:space-x-3">
-                        <li className="inline-flex items-center">
-                            <a href="/" className="text-gray-400 hover:text-white">Home</a>
-                        </li>
-                        <li>
-                            <div className="flex items-center">
-                                <svg className="w-3 h-3 text-gray-500 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                                </svg>
-                                <a href={`/${category}`} className="text-gray-400 hover:text-white capitalize">{category.replace('-', ' ')}</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div className="flex items-center">
-                                <svg className="w-3 h-3 text-gray-500 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
-                                </svg>
-                                <span className="text-gray-500">{product.title}</span>
-                            </div>
-                        </li>
-                    </ol>
-                </nav>
-            </div>
+            <Breadcrumb items={[
+                { label: 'Home', path: '/' },
+                { label: category.charAt(0).toUpperCase() + category.slice(1), path: `/${category}` },
+                { label: product.title, path: null }
+            ]} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+            {/* Product Main Section */}
+            <div className="mt-6 md:mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {/* Product Image */}
-                <div data-aos="fade-right">
-                    <div className="relative aspect-square overflow-hidden rounded-lg shadow-xl bg-gray-900">
-                        <OptimizedImage 
-                            src={product.image} 
+                <div className="relative">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <OptimizedImage
+                            src={product.image}
                             alt={product.title}
-                            className="w-full h-full p-4"
-                            objectFit="contain"
-                            priority={true} // Always load main product image with priority
-                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="w-full rounded-lg shadow-lg"
+                            priority={true}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Product Info */}
-                <div data-aos="fade-left" className="space-y-6">
-                    <h1 className="text-4xl font-bold text-white">{product.title}</h1>
-                    
-                    <div className="flex items-center space-x-4">
-                        <span className="text-3xl font-bold text-white">Rs. {product.salePrice.toFixed(2)}</span>
-                        <span className="text-xl text-gray-400 line-through">Rs. {product.regularPrice.toFixed(2)}</span>
-                        <span className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-3 py-1 rounded-full text-sm">
+                <div className="space-y-4 md:space-y-6">
+                    <motion.h1 
+                        className="text-2xl md:text-4xl font-bold text-white"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                    >
+                        {product.title}
+                    </motion.h1>
+
+                    <motion.div 
+                        className="flex flex-wrap items-center gap-2"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                        <div className="flex items-center">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <svg key={star} className={`w-5 h-5 ${star <= (product.rating || 4) ? 'text-yellow-400' : 'text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            ))}
+                            <span className="ml-2 text-gray-300 text-sm">({Math.floor(Math.random() * 50) + 10} reviews)</span>
+                        </div>
+                        <span className="px-2 py-1 bg-purple-900 bg-opacity-40 text-purple-300 text-xs rounded-full">
+                            {product.category}
+                        </span>
+                    </motion.div>
+
+                    <motion.div 
+                        className="flex items-center space-x-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                        <p className="text-3xl font-bold text-white">Rs. {product.salePrice.toFixed(2)}</p>
+                        <p className="text-xl text-gray-400 line-through">Rs. {product.regularPrice.toFixed(2)}</p>
+                        <span className="px-2 py-1 bg-green-900 bg-opacity-40 text-green-300 text-xs rounded-full">
                             {Math.round((1 - product.salePrice / product.regularPrice) * 100)}% OFF
                         </span>
-                    </div>
-                    
-                    <div className="flex flex-col space-y-4">
-                        {/* Quantity Selector */}
-                        <div className="flex items-center space-x-4">
-                            <span className="text-white">Quantity:</span>
-                            <div className="flex items-center">
-                                <button 
-                                    className="w-8 h-8 bg-gray-800 rounded-l-lg flex items-center justify-center text-white hover:bg-gray-700"
-                                    onClick={() => handleQuantityChange(quantity - 1)}
-                                    disabled={quantity <= 1}
-                                >
-                                    -
-                                </button>
-                                <input 
-                                    type="number" 
-                                    min="1" 
-                                    value={quantity} 
-                                    onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                                    className="w-12 h-8 bg-gray-800 text-center text-white border-none"
-                                />
-                                <button 
-                                    className="w-8 h-8 bg-gray-800 rounded-r-lg flex items-center justify-center text-white hover:bg-gray-700"
-                                    onClick={() => handleQuantityChange(quantity + 1)}
-                                >
-                                    +
-                                </button>
-                            </div>
+                    </motion.div>
+
+                    <motion.div 
+                        className="pt-4 border-t border-gray-800"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}
+                    >
+                        <p className="text-gray-300 text-sm md:text-base">
+                            {product.description.substring(0, 150)}...
+                        </p>
+                    </motion.div>
+
+                    <motion.div 
+                        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                    >
+                        <div className="flex items-center border border-gray-700 rounded-lg">
+                            <button 
+                                className="px-3 py-2 text-white hover:bg-gray-800 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 tap-target"
+                                onClick={() => handleQuantityChange(quantity - 1)}
+                                disabled={quantity <= 1}
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                </svg>
+                            </button>
+                            <span className="px-4 py-2 text-white">{quantity}</span>
+                            <button 
+                                className="px-3 py-2 text-white hover:bg-gray-800 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-purple-500 tap-target"
+                                onClick={() => handleQuantityChange(quantity + 1)}
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
                         </div>
-                        
-                        {/* Add to Cart Button */}
+
                         <motion.button
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 px-8 rounded-lg text-lg font-semibold flex items-center justify-center"
+                            className="flex-1 py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg hover:shadow-purple-500/20 transition-all duration-300 text-sm md:text-base font-medium tap-target"
                             onClick={handleAddToCart}
                         >
                             {buttonText}
                         </motion.button>
-                    </div>
+
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`p-3 rounded-lg ${isInWishlist(product.id) ? 'bg-pink-600 text-white' : 'bg-gray-800 text-gray-300'} hover:bg-pink-600 hover:text-white transition-colors duration-300 tap-target`}
+                            onClick={handleToggleWishlist}
+                        >
+                            <svg className="w-6 h-6" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </motion.button>
+                    </motion.div>
+
+                    <motion.div 
+                        className="pt-4 text-sm text-gray-400"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.6 }}
+                    >
+                        <p>Vendor: <span className="text-white">{product.vendor}</span></p>
+                        <p>SKU: <span className="text-white">MM-{category.substring(0, 3).toUpperCase()}-{product.id}</span></p>
+                        <p>Availability: <span className="text-green-400">In Stock</span></p>
+                    </motion.div>
                 </div>
             </div>
 
-            {/* Product Tabs (Description, Specifications) */}
-            <div className="mt-12">
-                <div className="border-b border-gray-700 mb-4">
-                    <nav className="flex space-x-8">
-                        <button
-                            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                activeTab === 'description'
-                                    ? 'border-purple-500 text-white'
-                                    : 'border-transparent text-gray-400 hover:text-gray-300'
-                            }`}
-                            onClick={() => setActiveTab('description')}
-                        >
-                            Description
-                        </button>
-                        <button
-                            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                activeTab === 'specifications'
-                                    ? 'border-purple-500 text-white'
-                                    : 'border-transparent text-gray-400 hover:text-gray-300'
-                            }`}
-                            onClick={() => setActiveTab('specifications')}
-                        >
-                            Specifications
-                        </button>
-                    </nav>
+            {/* Product Tabs */}
+            <div className="mt-12 border-t border-gray-800 pt-8">
+                <div className="flex flex-wrap gap-2 border-b border-gray-800">
+                    <button 
+                        className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 ${activeTab === 'description' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setActiveTab('description')}
+                    >
+                        Description
+                    </button>
+                    <button 
+                        className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 ${activeTab === 'specifications' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setActiveTab('specifications')}
+                    >
+                        Specifications
+                    </button>
+                    <button 
+                        className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 ${activeTab === 'reviews' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setActiveTab('reviews')}
+                    >
+                        Reviews
+                    </button>
                 </div>
 
-                <div className="py-4">
-                    {activeTab === 'description' ? (
-                        <div className="prose prose-invert max-w-none">
-                            <p className="text-gray-300">{product.description}</p>
+                <div className="py-6">
+                    {activeTab === 'description' && (
+                        <div className="text-gray-300 space-y-4">
+                            <p>{product.description}</p>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    )}
+                    
+                    {activeTab === 'specifications' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {Object.entries(product.specifications).map(([key, value]) => (
-                                <div key={key} className="border-b border-gray-700 pb-3">
-                                    <dt className="text-gray-400 text-sm">{key}</dt>
-                                    <dd className="mt-1 text-white">{value}</dd>
+                                <div key={key} className="flex">
+                                    <span className="w-1/2 text-gray-400">{key}:</span>
+                                    <span className="w-1/2 text-white">{value}</span>
                                 </div>
                             ))}
                         </div>
                     )}
+                    
+                    {activeTab === 'reviews' && (
+                        <ReviewList productId={product.id} />
+                    )}
                 </div>
             </div>
-
-            {/* Reviews Section */}
-            <ReviewList productId={productId} />
 
             {/* Related Products */}
-            <div className="mt-16">
-                <h2 className="text-2xl font-bold text-white mb-6">You May Also Like</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {product.relatedProducts.map((relatedProduct) => (
-                        <motion.div
-                            key={relatedProduct.id}
-                            className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
-                            whileHover={{ y: -5 }}
-                            onClick={() => navigate(`/${category}/${relatedProduct.id}`)}
-                        >
-                            <OptimizedImage
-                                src={relatedProduct.image}
-                                alt={relatedProduct.title}
-                                className="w-full h-48"
-                                objectFit="cover"
-                                sizes="(max-width: 768px) 50vw, 25vw"
-                            />
-                            <div className="p-4">
-                                <h3 className="text-white font-medium truncate">{relatedProduct.title}</h3>
-                                <div className="flex items-center space-x-2 mt-1">
-                                    <p className="text-gray-400 line-through text-sm">Rs. {relatedProduct.regularPrice.toFixed(2)}</p>
-                                    <p className="text-white font-semibold">Rs. {relatedProduct.salePrice.toFixed(2)}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+            {product.relatedProducts && product.relatedProducts.length > 0 && (
+                <div className="mt-16">
+                    <h2 className="text-2xl font-bold text-white mb-6">Related Products</h2>
+                    <div className="responsive-grid">
+                        {product.relatedProducts.map((item) => (
+                            <motion.div
+                                key={item.id}
+                                className="group relative"
+                                whileHover={{ scale: 1.03 }}
+                            >
+                                <Link to={`/${category}/${item.id}`} className="block">
+                                    <div className="relative">
+                                        <OptimizedImage
+                                            src={item.image}
+                                            alt={item.title}
+                                            className="w-full aspect-portrait rounded"
+                                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                        />
+                                    </div>
+                                    <div className="mt-2 md:mt-4 space-y-1 md:space-y-2">
+                                        <h3 className="text-xs md:text-sm font-medium text-white line-clamp-2">{item.title}</h3>
+                                        <div className="flex items-center space-x-2">
+                                            <p className="text-xs md:text-sm text-gray-400 line-through">Rs. {item.regularPrice.toFixed(2)}</p>
+                                            <p className="text-xs md:text-sm font-semibold text-white">Rs. {item.salePrice.toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
+
+            {/* Recently Viewed */}
+            <RecentlyViewed currentProductId={product.id} />
         </div>
     );
 };

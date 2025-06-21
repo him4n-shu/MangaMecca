@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import FilterSort from '../components/FilterSort';
 import { mangaItems } from '../components/MangaSection';
+import PageLayout from '../components/common/PageLayout';
 
 const MangaPage = () => {
     const [filteredProducts, setFilteredProducts] = useState([]);
@@ -35,15 +36,16 @@ const MangaPage = () => {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="text-center">
-                <h1 className="text-4xl font-bold text-white mb-4" data-aos="fade-up">Manga Collection</h1>
-                <p className="text-gray-400 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                    Discover our extensive collection of manga from popular series to hidden gems.
-                    From action-packed adventures to heartwarming stories, find your next favorite read.
-                </p>
-            </div>
-            
+        <PageLayout
+            breadcrumbItems={[
+                { label: 'Home', path: '/' },
+                { label: 'Categories', path: '/categories' },
+                { label: 'Manga', path: '/manga' }
+            ]}
+            title="Manga Collection"
+            description="Discover our extensive collection of manga from popular series to hidden gems. From action-packed adventures to heartwarming stories, find your next favorite read."
+            currentCategory="manga"
+        >
             {/* Filter and Sort */}
             <div data-aos="fade-up" data-aos-delay="200">
                 <FilterSort products={mangaItems} setFilteredProducts={setFilteredProducts} />
@@ -122,7 +124,7 @@ const MangaPage = () => {
                     </motion.button>
                 </div>
             )}
-        </div>
+        </PageLayout>
     );
 };
 
