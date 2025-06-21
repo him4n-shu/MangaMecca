@@ -93,7 +93,7 @@ A modern, full-stack e-commerce platform specializing in anime and manga merchan
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/yourusername/mangamecca.git
+git clone https://github.com/him4n-shu/MangaMecca
 cd mangamecca
 ```
 
@@ -212,20 +212,6 @@ mangamecca/
 └── README.md
 ```
 
-## 🎨 Screenshots
-
-### Homepage
-![Homepage](screenshots/homepage.png)
-
-### Product Catalog
-![Product Catalog](screenshots/catalog.png)
-
-### Shopping Cart
-![Shopping Cart](screenshots/cart.png)
-
-### User Profile
-![User Profile](screenshots/profile.png)
-
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
@@ -264,9 +250,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [Your Portfolio](https://yourportfolio.com)
+- GitHub: https://github.com/him4n-shu)
+- LinkedIn: https://www.linkedin.com/in/him4nshu-kumar)
+- Portfolio:(https://itshim4nshu.vercel.app)
 
 ## 🙏 Acknowledgments
 
@@ -274,15 +260,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Vercel and Render for hosting services
 - MongoDB for the database
 - All contributors and supporters
-
-## 📞 Support
-
-If you have any questions or need help:
-
-- Create an issue on GitHub
-- Email: your.email@example.com
-- Discord: [Join our server](https://discord.gg/your-server)
-
----
 
 ⭐ **Star this repository if you found it helpful!** 
