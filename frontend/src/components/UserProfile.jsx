@@ -6,6 +6,9 @@ import OrderHistory from './profile/OrderHistory';
 import SavedItems from './profile/SavedItems';
 import AccountSettings from './profile/AccountSettings';
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const UserProfile = () => {
     const [activeTab, setActiveTab] = useState('profile');
     const [userData, setUserData] = useState(null);
@@ -22,7 +25,7 @@ const UserProfile = () => {
     const fetchUserData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

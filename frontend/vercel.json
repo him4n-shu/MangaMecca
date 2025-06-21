@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://your-render-backend-url.onrender.com/api/$1"
+      "destination": "https://mangamecca.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
@@ -41,6 +41,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "env": {
-    "VITE_API_URL": "https://your-render-backend-url.onrender.com"
+    "VITE_API_URL": "https://mangamecca.onrender.com"
   }
 }

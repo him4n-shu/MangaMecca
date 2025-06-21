@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const AccountSettings = ({ user }) => {
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
@@ -41,7 +44,7 @@ const AccountSettings = ({ user }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/auth/change-password', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

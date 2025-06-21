@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const OrderHistory = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +18,7 @@ const OrderHistory = () => {
     const fetchOrders = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/profile/orders', {
+            const res = await fetch(`${API_BASE_URL}/api/profile/orders`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

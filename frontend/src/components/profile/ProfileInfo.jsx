@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const ProfileInfo = ({ user }) => {
     const [profile, setProfile] = useState({
         name: '',
@@ -61,7 +64,7 @@ const ProfileInfo = ({ user }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

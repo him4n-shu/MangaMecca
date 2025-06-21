@@ -5,6 +5,9 @@ const WishlistContext = createContext();
 
 export const useWishlist = () => useContext(WishlistContext);
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const WishlistProvider = ({ children }) => {
   const { user } = useAuth();
   const [wishlist, setWishlist] = useState([]);
@@ -24,7 +27,7 @@ export const WishlistProvider = ({ children }) => {
             throw new Error('No authentication token found');
           }
 
-          const response = await fetch('/api/profile/wishlist', {
+          const response = await fetch(`${API_BASE_URL}/api/profile/wishlist`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -68,7 +71,7 @@ export const WishlistProvider = ({ children }) => {
             throw new Error('No authentication token found');
           }
 
-          const response = await fetch('/api/profile/wishlist', {
+          const response = await fetch(`${API_BASE_URL}/api/profile/wishlist`, {
             method: 'PUT',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -80,6 +83,8 @@ export const WishlistProvider = ({ children }) => {
           if (!response.ok) {
             throw new Error(`Failed to save wishlist: ${response.statusText}`);
           }
+
+          const data = await response.json();
         } else {
           // For non-logged in users, use localStorage
           localStorage.setItem('wishlist', JSON.stringify(wishlist));
@@ -93,24 +98,67 @@ export const WishlistProvider = ({ children }) => {
     saveWishlist();
   }, [wishlist, user, loading]);
 
-  const addToWishlist = (item) => {
-    setWishlist(prevWishlist => {
-      // Check if item is already in wishlist
-      const existingItem = prevWishlist.find(wishlistItem => wishlistItem.id === item.id);
-      if (existingItem) {
-        return prevWishlist;
-      } else {
-        return [...prevWishlist, { ...item, addedAt: new Date().toISOString() }];
+  const addToWishlist = async (product) => {
+    try {
+      if (user) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/profile/wishlist`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId: product.id })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to add to wishlist: ${response.statusText}`);
+        }
       }
-    });
+      
+      if (!wishlist.find(item => item.id === product.id)) {
+        setWishlist(prev => [...prev, product]);
+      }
+    } catch (err) {
+      console.error('Error adding to wishlist:', err);
+      setError(err.message);
+    }
   };
 
-  const removeFromWishlist = (itemId) => {
-    setWishlist(prevWishlist => prevWishlist.filter(item => item.id !== itemId));
+  const removeFromWishlist = async (productId) => {
+    try {
+      if (user) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/profile/wishlist/${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to remove from wishlist: ${response.statusText}`);
+        }
+      }
+      
+      setWishlist(prev => prev.filter(item => item.id !== productId));
+      localStorage.removeItem('wishlist');
+    } catch (err) {
+      console.error('Error removing from wishlist:', err);
+      setError(err.message);
+    }
   };
 
-  const isInWishlist = (itemId) => {
-    return wishlist.some(item => item.id === itemId);
+  const isInWishlist = (productId) => {
+    return wishlist.some(item => item.id === productId);
   };
 
   const clearWishlist = async () => {
@@ -121,7 +169,7 @@ export const WishlistProvider = ({ children }) => {
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch('/api/profile/wishlist', {
+        const response = await fetch(`${API_BASE_URL}/api/profile/wishlist`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

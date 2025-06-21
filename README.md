@@ -44,8 +44,8 @@ A modern, full-stack e-commerce platform specializing in anime and manga merchan
 
 ## 🚀 Live Demo
 
-- **Frontend**: [MangaMecca Store](https://your-vercel-url.vercel.app)
-- **Backend API**: [API Documentation](https://your-render-url.onrender.com)
+- **Frontend**: [MangaMecca Store](https://manga-mecca.vercel.app)
+- **Backend API**: [API Documentation](https://mangamecca.onrender.com)
 
 ## 📋 Table of Contents
 
@@ -124,7 +124,7 @@ npm install
 
 Create a `.env` file in the frontend directory:
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=https://mangamecca.onrender.com
 ```
 
 Start the development server:

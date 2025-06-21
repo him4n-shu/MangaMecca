@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const SavedItems = () => {
     const [savedItems, setSavedItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,7 +20,7 @@ const SavedItems = () => {
     const fetchSavedItems = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -33,7 +36,7 @@ const SavedItems = () => {
                 // Fetch details for each saved item
                 const itemDetailsPromises = userData.savedItems.map(async (itemId) => {
                     try {
-                        const itemRes = await fetch(`/api/products/${itemId}`, {
+                        const itemRes = await fetch(`${API_BASE_URL}/api/products/${itemId}`, {
                             headers: {
                                 'Authorization': `Bearer ${token}`
                             }
@@ -67,7 +70,7 @@ const SavedItems = () => {
     const handleRemoveItem = async (itemId) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/profile/saved-items/${itemId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/profile/saved-items/${itemId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

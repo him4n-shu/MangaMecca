@@ -5,6 +5,9 @@ import ReviewStats from './ReviewStats';
 import ReviewForm from './ReviewForm';
 import { useAuth } from '../../context/AuthContext';
 
+// Get API base URL from environment or default to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const ReviewList = ({ productId }) => {
     const [reviews, setReviews] = useState([]);
     const [stats, setStats] = useState({
@@ -25,7 +28,7 @@ const ReviewList = ({ productId }) => {
 
     const fetchReviews = async () => {
         try {
-            const res = await fetch(`/api/reviews/product/${productId}`);
+            const res = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}`);
             if (!res.ok) {
                 throw new Error('Failed to fetch reviews');
             }
@@ -48,7 +51,7 @@ const ReviewList = ({ productId }) => {
 
     const fetchStats = async () => {
         try {
-            const res = await fetch(`/api/reviews/product/${productId}/stats`);
+            const res = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}/stats`);
             if (!res.ok) {
                 throw new Error('Failed to fetch review statistics');
             }
@@ -62,7 +65,7 @@ const ReviewList = ({ productId }) => {
     const handleAddReview = async (reviewData) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/reviews', {
+            const res = await fetch(`${API_BASE_URL}/api/reviews`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -95,7 +98,7 @@ const ReviewList = ({ productId }) => {
     const handleDeleteReview = async (reviewId) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/reviews/${reviewId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/reviews/${reviewId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
