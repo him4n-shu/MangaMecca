@@ -17,14 +17,23 @@ app.use(cors());
 // Connect to MongoDB
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/mangamecca', {
+        const mongoURI = process.env.MONGO_URI;
+        if (!mongoURI) {
+            console.error('MONGO_URI environment variable is not set');
+            process.exit(1);
+        }
+        
+        await mongoose.connect(mongoURI, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        console.log('MongoDB connected');
+        console.log('MongoDB connected successfully');
     } catch (err) {
         console.error('MongoDB connection error:', err.message);
-        process.exit(1);
+        // Don't exit in production, let the app retry
+        if (process.env.NODE_ENV !== 'production') {
+            process.exit(1);
+        }
     }
 };
 
@@ -36,15 +45,29 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/reviews', reviewRoutes);
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-    // Set static folder
-    app.use(express.static(path.join(__dirname, '../frontend/build')));
-
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'MangaMecca Backend is running',
+        timestamp: new Date().toISOString()
     });
-}
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'MangaMecca Backend API',
+        version: '1.0.0',
+        endpoints: {
+            auth: '/api/auth',
+            cart: '/api/cart',
+            profile: '/api/profile',
+            reviews: '/api/reviews',
+            health: '/api/health'
+        }
+    });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
