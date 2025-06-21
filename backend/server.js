@@ -1,3 +1,6 @@
+// Load environment variables
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -20,6 +23,7 @@ const connectDB = async () => {
         const mongoURI = process.env.MONGO_URI;
         if (!mongoURI) {
             console.error('MONGO_URI environment variable is not set');
+            console.error('Please set MONGO_URI in your .env file or environment variables');
             process.exit(1);
         }
         
